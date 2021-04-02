@@ -15,6 +15,9 @@ public class Action
 	public static final Action quit = new Action(false);
 	public static final Action doNothing = new Action(false);
 	
+	public static final Action secretVictory = new Action(false);
+	public static final Action seduce = new Action(false);
+	
 	private boolean isAnAction;
 	
 	public Action(boolean isAnAction)
@@ -57,6 +60,12 @@ public class Action
 		}
 		else if(this == doNothing) {
 			return "Do Nothing";
+		}
+		else if(this == secretVictory) {
+			return "Declare Secret Victory";
+		}
+		else if(this == seduce) {
+			return "Seduce";
 		}
 		return null;
 	}
