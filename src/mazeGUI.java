@@ -13,7 +13,7 @@ public class mazeGUI extends JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new FlowLayout());
 		
-		maze = new Maze(30);
+		maze = new Maze(10);
 		this.add(maze);
 		stats = new Stats(maze);
 		this.add(stats);

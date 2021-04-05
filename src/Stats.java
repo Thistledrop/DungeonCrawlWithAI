@@ -46,5 +46,6 @@ public class Stats extends JPanel
 		ggotten.setText(maze.goldGotten + " gold retrieved");
 		points.setText("Points: " + maze.potentialPoints);
 		lastAction.setText(maze.lastAction);
+		//System.out.println(maze.lastAction);
 	}
 }

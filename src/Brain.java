@@ -46,22 +46,57 @@ public class Brain
 		else
 		{
 			Action temp;
-			//Maze current = new Maze(puzzle);
 			
 			if(nextMoves.isEmpty())
 			{
-				if(!puzzle.readyToLeave())
-				{
+//				if(!puzzle.gotAllGold())
+//				{
+//					nextMoves = getGems(puzzle);
+//				}
+//				else
+//				{
 					nextMoves = GetOut(puzzle);
-				}
-				//else
-				//	return Action.victory;
+//				}
 			}
 			
-
 			Action tmp = nextMoves.remove(0);
 			return tmp;
 		}
+	}
+	
+	public ArrayList<Action> getGems(Maze start)
+	{
+		ArrayList<Action> actions = new ArrayList<Action>();
+		Maze[] children;
+		Queue<Maze> q = new LinkedList<Maze>();
+		q.add(start);
+		
+		while(!q.isEmpty())
+		{	
+			Maze s = q.remove();
+			
+			if(visited.containsKey(s.toString()))
+				{continue;}
+			
+			else if(s.gotAllGold())
+			{
+				actions = s.getActions();
+				break;
+			}
+			else
+			{
+				visited.put(s.toString(), true);
+				children = s.getChildren();
+				for (Maze i : children)
+				{
+					if(i != null)
+					{q.add(i);}
+				}
+			}
+		}
+		
+		actions.add(Action.doNothing);
+		return actions;
 	}
 	
 	public ArrayList<Action> GetOut(Maze start)
@@ -81,6 +116,7 @@ public class Brain
 			else if(s.readyToLeave())
 			{
 				actions = s.getActions();
+				actions.add(Action.victory);
 				break;
 			}
 			else
@@ -95,7 +131,7 @@ public class Brain
 			}
 		}
 		
-		actions.add(Action.victory);
+		actions.add(Action.doNothing);
 		return actions;
 	}
 }

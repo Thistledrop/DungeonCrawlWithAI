@@ -14,16 +14,18 @@ public class Maze extends JPanel implements KeyListener
 	private static final long serialVersionUID = 1L;
 	public int tileSize = 100;
 	public static final int SLEEP_TIME = 100;
-	public static boolean ADD_OBJECTS = false;
+	public static boolean ADD_GEMS = true;
+	public static boolean ADD_SLIMES = true;
+	public static boolean ADD_EXITS = true;
 	
-	int playerX;
-	int playerY;
+	public int playerX;
+	public int playerY;
 	
 	private Brain brain;
 	Maze parent;
 	Action action;
 	
-	private Tile[][] MazeTiles;
+	public Tile[][] MazeTiles;
 	public int size;
 	
 	public static int points = 0;
@@ -60,8 +62,6 @@ public class Maze extends JPanel implements KeyListener
 		System.out.println("Escape to quit");
 		
 		buildMaze();
-		addObjects();
-		
 	}
 	
 	public Maze(Maze maze) 
@@ -83,6 +83,7 @@ public class Maze extends JPanel implements KeyListener
 
 	private void buildMaze()
 	{	
+		brain = new Brain(this);
 		numActions = 0;
 		declaredVictory = false;
 		quit = false;
@@ -175,37 +176,41 @@ public class Maze extends JPanel implements KeyListener
 				}
 			}
 		}
-	}
-	
-	private void addObjects()
-	{
+		
 		double rand;
 		int gold = 0;
 		int monsters = 0;
 		int center = size/2;
 		
-		if(ADD_OBJECTS)
-		{
 			for (int i = 0; i < MazeTiles.length; i++)
 			{
 				for (int j = 0; j < MazeTiles[i].length; j++)
 				{
-					rand = Math.random();
-					if(rand <= .10)
-					{MazeTiles[i][j].hasGold = true; gold++;}
+					if(ADD_GEMS)
+					{
+						rand = Math.random();
+						if(rand <= .10)
+						{MazeTiles[i][j].hasGold = true; gold++;}
+					}
 					
-					rand = Math.random();
-					if(rand <= .10)
-					{MazeTiles[i][j].hasMonster = true; monsters++;}
+					if(ADD_SLIMES)
+					{
+						rand = Math.random();
+						if(rand <= .10)
+						{MazeTiles[i][j].hasMonster = true; monsters++;}
+					}
 					
-					rand = Math.random();
-					double dist = Math.sqrt(Math.pow((center - i), 2) + Math.pow((center - j), 2));
-					double prg = dist/(center*140);
-					if(rand < prg) //add formula here...
-					{MazeTiles[i][j].hasExit = true;}
+					if(ADD_EXITS)
+					{
+						rand = Math.random();
+						double dist = Math.sqrt(Math.pow((center - i), 2) + Math.pow((center - j), 2));
+						double prg = dist/(center*140);
+						if(rand < prg)
+						{MazeTiles[i][j].hasExit = true;}
+					}
 				}
 			}
-		}
+			
 		MazeTiles[0][0].hasExit = true;
 		MazeTiles[center][center].hasGold = false;
 		MazeTiles[center][center].hasMonster = false;
@@ -286,7 +291,7 @@ public class Maze extends JPanel implements KeyListener
 		
 		if(action == Action.victory)
 		{
-			System.out.println("tried to victory");
+//			System.out.println("tried to victory");
 			if(MazeTiles[row][col].hasExit)
 			{
 				lastAction = "You Win!";
@@ -312,6 +317,7 @@ public class Maze extends JPanel implements KeyListener
 		
 		else if(action == Action.pickup)
 		{
+//			System.out.println("tried to pickup");
 			if(MazeTiles[row][col].hasGold)
 			{
 				lastAction = "You got a gem!";
@@ -326,7 +332,7 @@ public class Maze extends JPanel implements KeyListener
 		
 		else if(action == Action.moveUp)
 		{
-			System.out.println("tried to move up");
+//			System.out.println("tried to move up");
 			if(isValidMove(1))
 			{
 				lastAction = "Moved North";
@@ -341,7 +347,7 @@ public class Maze extends JPanel implements KeyListener
 		
 		else if(action == Action.moveDown)
 		{
-			System.out.println("tried to move down");
+//			System.out.println("tried to move down");
 			if(isValidMove(3))
 			{
 				lastAction = "Moved South";
@@ -356,7 +362,7 @@ public class Maze extends JPanel implements KeyListener
 		
 		else if(action == Action.moveLeft)
 		{
-			System.out.println("tried to move left");
+//			System.out.println("tried to move left");
 			if(isValidMove(0))
 			{
 				lastAction = "Moved West";
@@ -371,7 +377,7 @@ public class Maze extends JPanel implements KeyListener
 		
 		else if(action == Action.moveRight)
 		{
-			System.out.println("tried to move right");
+//			System.out.println("tried to move right");
 			if(isValidMove(2))
 			{
 				lastAction = "Moved East";
@@ -550,7 +556,6 @@ public class Maze extends JPanel implements KeyListener
 			}
 			
 			buildMaze();
-			addObjects();
 		}
 		else
 			{move();}
@@ -566,12 +571,33 @@ public class Maze extends JPanel implements KeyListener
 				}
 			}
 		}
+		try {
+			Thread.sleep(SLEEP_TIME);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		repaint();
 	}
 	
 	public boolean readyToLeave()
 	{
 		return MazeTiles[playerX][playerY].hasExit;
+	}
+	
+	public boolean gotAllGold()
+	{
+		for (int i = 0; i < MazeTiles.length; i++)
+		{
+			for (int j = 0; j < MazeTiles[i].length; j++)
+			{
+				if (MazeTiles[i][j].hasGold)
+				{
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 	
 	public ArrayList<Action> getActions()
@@ -587,14 +613,34 @@ public class Maze extends JPanel implements KeyListener
 	
 	public Maze[] getChildren()
 	{
-		Maze[] children = new Maze[4];
+		Maze[] children = new Maze[9];
 		
-		children[0] = this.moveUp();
-		children[1] = this.moveLeft();
-		children[2] = this.moveDown();
-		children[3] = this.moveRight();
-		
+		if(MazeTiles[playerX][playerY].hasGold)
+		{children[0] = this.pickup();return children;}
+		else
+		{
+			children[1] = this.moveUp();
+			children[2] = this.moveLeft();
+			children[3] = this.moveDown();
+			children[4] = this.moveRight();
+			
+			children[5] = this.attackUp();
+			children[6] = this.attackLeft();
+			children[7] = this.attackDown();
+			children[8] = this.attackRight();
+		}
 		return children;
+	}
+	
+	public Maze pickup()
+	{
+		Maze newMaze = new Maze(this);
+		newMaze.action = Action.pickup;
+
+		if(MazeTiles[playerX][playerY].hasGold)
+		{newMaze.MazeTiles[playerX][playerY].hasGold = false;return newMaze;}
+		else
+			return null;
 	}
 	
 	public Maze moveUp()
@@ -606,12 +652,14 @@ public class Maze extends JPanel implements KeyListener
 		{
 			Tile here = newMaze.MazeTiles[playerX][playerY];
 			Tile there = newMaze.MazeTiles[playerX-1][playerY];
-			here.hasPlayer = false;
-			there.hasPlayer = true;
-			newMaze.playerX = playerX-1;
-			return newMaze;
+			if(!there.hasMonster)
+			{
+				here.hasPlayer = false;
+				there.hasPlayer = true;
+				newMaze.playerX = playerX-1;
+				return newMaze;
+			}
 		}
-		else
 			return null;
 	}
 	
@@ -619,19 +667,20 @@ public class Maze extends JPanel implements KeyListener
 	{
 		Maze newMaze = new Maze(this);
 		newMaze.action = Action.moveDown;
-		
 				
 		if(this.isValidMove(3))
 		{
 			Tile here = newMaze.MazeTiles[playerX][playerY];
 			Tile there = newMaze.MazeTiles[playerX+1][playerY];
-			here.hasPlayer = false;
-			there.hasPlayer = true;
-			newMaze.playerX = playerX+1;
-			return newMaze;
+			if(!there.hasMonster)
+			{
+				here.hasPlayer = false;
+				there.hasPlayer = true;
+				newMaze.playerX = playerX+1;
+				return newMaze;
+			}
 			
 		}
-		else
 			return null;
 	}
 	
@@ -640,19 +689,19 @@ public class Maze extends JPanel implements KeyListener
 		Maze newMaze = new Maze(this);
 		newMaze.action = Action.moveLeft;
 		
-		
-		
 		if(this.isValidMove(0))
 		{
 			Tile here = newMaze.MazeTiles[playerX][playerY];
 			Tile there = newMaze.MazeTiles[playerX][playerY-1];
-			here.hasPlayer = false;
-			there.hasPlayer = true;
-			newMaze.playerY = playerY-1;
-			return newMaze;
+			if(!there.hasMonster)
+			{
+				here.hasPlayer = false;
+				there.hasPlayer = true;
+				newMaze.playerY = playerY-1;
+				return newMaze;
+			}
 			
 		}
-		else
 			return null;
 	}
 	
@@ -661,19 +710,83 @@ public class Maze extends JPanel implements KeyListener
 		Maze newMaze = new Maze(this);
 		newMaze.action = Action.moveRight;
 		
-		
-		
 		if(this.isValidMove(2))
 		{
 			Tile here = newMaze.MazeTiles[playerX][playerY];
 			Tile there = newMaze.MazeTiles[playerX][playerY+1];
-			here.hasPlayer = false;
-			there.hasPlayer = true;
-			newMaze.playerY = playerY+1;
-			return newMaze;
+			if(!there.hasMonster)
+			{
+				here.hasPlayer = false;
+				there.hasPlayer = true;
+				newMaze.playerY = playerY+1;
+				return newMaze;
+			}
 		}
-		else
 			return null;
+	}
+	
+	public Maze attackUp()
+	{
+		if(this.isValidMove(1))
+		{
+			Maze newMaze = new Maze(this);
+			newMaze.action = Action.attackUp;
+			Tile there = newMaze.MazeTiles[playerX-1][playerY];
+			if(there.hasMonster)
+			{
+				there.hasMonster = false;
+				return newMaze;
+			}
+		}
+		return null;
+	}
+	
+	public Maze attackDown()
+	{
+		if(this.isValidMove(3))
+		{
+			Maze newMaze = new Maze(this);
+			newMaze.action = Action.attackDown;	
+			Tile there = newMaze.MazeTiles[playerX+1][playerY];
+			if(there.hasMonster)
+			{
+				there.hasMonster = false;
+				return newMaze;
+			}
+		}
+		return null;
+	}
+	
+	public Maze attackLeft()
+	{
+		if(this.isValidMove(0))
+		{
+			Maze newMaze = new Maze(this);
+			newMaze.action = Action.attackLeft;
+			Tile there = newMaze.MazeTiles[playerX][playerY-1];
+			if(there.hasMonster)
+			{
+				there.hasMonster = false;
+				return newMaze;
+			}
+		}
+		return null;
+	}
+	
+	public Maze attackRight()
+	{
+		if(this.isValidMove(2))
+		{
+			Maze newMaze = new Maze(this);
+			newMaze.action = Action.attackRight;
+			Tile there = newMaze.MazeTiles[playerX][playerY+1];
+			if(there.hasMonster)
+			{
+				there.hasMonster = false;
+				return newMaze;
+			}
+		}
+		return null;
 	}
 
 	@Override
