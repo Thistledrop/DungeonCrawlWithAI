@@ -324,7 +324,7 @@ public class Maze extends JPanel implements KeyListener
 				goldGotten++;
 				numGold--;
 				MazeTiles[row][col].hasGold = false;
-				potentialPoints += 50;
+				potentialPoints += 10;
 			}
 			else
 				lastAction = "There's nothing there...";
@@ -339,7 +339,6 @@ public class Maze extends JPanel implements KeyListener
 				MazeTiles[row][col].hasPlayer = false;
 				MazeTiles[row-1][col].hasPlayer = true;
 				playerX--;
-				potentialPoints--;
 			}
 			else
 				lastAction = "Can't move North";
@@ -354,7 +353,6 @@ public class Maze extends JPanel implements KeyListener
 				MazeTiles[row][col].hasPlayer = false;
 				MazeTiles[row+1][col].hasPlayer = true;
 				playerX++;
-				potentialPoints--;
 			}
 			else
 				lastAction = "Can't move South";
@@ -369,7 +367,6 @@ public class Maze extends JPanel implements KeyListener
 				MazeTiles[row][col].hasPlayer = false;
 				MazeTiles[row][col-1].hasPlayer = true;
 				playerY--;
-				potentialPoints--;
 			}
 			else
 				lastAction = "Can't move West";
@@ -384,7 +381,6 @@ public class Maze extends JPanel implements KeyListener
 				MazeTiles[row][col].hasPlayer = false;
 				MazeTiles[row][col+1].hasPlayer = true;
 				playerY++;
-				potentialPoints--;
 			}
 			else
 				lastAction = "Can't move East";
@@ -401,6 +397,7 @@ public class Maze extends JPanel implements KeyListener
 					monstersSlain++;
 					numMonsters--;
 					lastAction = "Killed a monster";
+					potentialPoints += 5;
 				}
 				else
 					lastAction = "Swing and a miss";
@@ -420,7 +417,7 @@ public class Maze extends JPanel implements KeyListener
 					monstersSlain++;
 					numMonsters--;
 					lastAction = "Killed a monster";
-					potentialPoints++;
+					potentialPoints += 5;
 				}
 				else
 					lastAction = "Swing and a miss";
@@ -440,7 +437,7 @@ public class Maze extends JPanel implements KeyListener
 					monstersSlain++;
 					numMonsters--;
 					lastAction = "Killed a monster";
-					potentialPoints++;
+					potentialPoints += 5;
 				}
 				else
 					lastAction = "Swing and a miss";
@@ -460,7 +457,7 @@ public class Maze extends JPanel implements KeyListener
 					monstersSlain++;
 					numMonsters--;
 					lastAction = "Killed a monster";
-					potentialPoints++;
+					potentialPoints += 5;
 				}
 				else
 					lastAction = "Swing and a miss";
@@ -789,17 +786,14 @@ public class Maze extends JPanel implements KeyListener
 		return null;
 	}
 
-	@Override
 	public void keyTyped(KeyEvent e) {}
 
-	@Override
 	public void keyPressed(KeyEvent e) 
 	{
 		//System.out.println("KEY pressed");
 		setNextMove(e,this);
 	}
 
-	@Override
 	public void keyReleased(KeyEvent e) {}
 	
 	private void setNextMove(KeyEvent k, Maze s)
